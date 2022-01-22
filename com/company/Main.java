@@ -11,13 +11,14 @@ public class Main {
     public static final int INDEX_TO_DATE = 4;
     public static final int INDEX_TYPE = 5;
 
-    static String[][] applications = new String[10000][6];
+    static String[][] applications = new String[1000][6];
     static int lastApplicationIndex = -1;
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         testTheProgram();
-        while (true) {
+        boolean working = true;
+        while (working) {
             printAllOptionsNames();
             int userOption = getUserInput();
             switch (userOption) {
@@ -25,73 +26,57 @@ public class Main {
                     startNewApplicationWriting();
                     break;
                 case 2:
-                    showAllVacations();
+                    showAllApplications(applications, lastApplicationIndex);
                     break;
                 case 3:
-                    showVacationsForEmployee();
+                    searchForExactEmployeeByName();
+                    break;
                 case 4:
+                    break;
                 case 5:
+                    working = false;
+                    break;
                 default:
+                    System.out.println("Въведете данните правилно!");
             }
         }
-    }
-
-    public static void showVacationsForEmployee() {
-        System.out.println("Търси по име:");
-        String name = scanner.next();
-        String[][] applicationsForEmployee = applicationByEmployeeName(name);
-        viewApplications(applicationsForEmployee);
-    }
-
-    public static String[][] applicationByEmployeeName(String name) {
-        int counter = 0;
-        for (int i = 0; i < applications.length; i++) {
-            if (getApplicationName(counter).equals(name)) {
-                counter++;
-            }
-        }
-        String[][] sortedByName = new String[counter][6];
-        int sortIndex = 0;
-        for (int i = 0; i < applications.length; i++) {
-            if (getApplicationName(sortIndex).equals(name)) {
-                sortedByName[sortIndex] = applications[i];
-                sortIndex++;
-            }
-        }
-        return sortedByName;
-    }
-
-
-    private static void viewApplications(String[][] sortedApplicationsForEmployee, int maxRows) {
-        if (maxRows == -1) maxRows = applications.length;
-        String pattern = "%s \t| %s \t |%s \t\t\t| %s \t\t\t| %s \t\t\t| %s \t\t ";
-        System.out.println(String.format(pattern, "Име", "Имейл           ", "ЕГН        ",
-                "Начална дата", "Крайна дата", "Вид"));
-        for (int applicationsIndex = 0; applicationsIndex <= maxRows; applicationsIndex++) {
-            System.out.println(String.format(pattern,
-                    applications[applicationsIndex][INDEX_NAME],
-                    applications[applicationsIndex][INDEX_EMAIL],
-                    applications[applicationsIndex][INDEX_ID],
-                    applications[applicationsIndex][INDEX_FROM_DATE],
-                    applications[applicationsIndex][INDEX_TO_DATE],
-                    applications[applicationsIndex][INDEX_TYPE]));
-
-        }
-    }
-
-    private static void viewApplications(String[][] applications) {
-        viewApplications(applications, -1);
     }
 
     public static void testTheProgram() {
-        makingApplication("Иванка", "ivanka23@gamil.com", "7029394911", "22.01.2022",
+        makingApplication("Ива", "iva@gmail.com", "7029394911", "22.01.2022",
                 "29.01.2022", "Платена");
         makingApplication("Петър", "pesho23@gamil.com", "758894911", "25.01.2022",
                 "30.01.2022", "Платена");
         makingApplication("Никол", "nikol145@gamil.com", "7675394911", "30.01.2022",
                 "02.02.2022", "Не платена");
-        makingApplication("Иван", "ivan23@gamil.com", "758894911", "25.01.2022",
+        makingApplication("Виктор", "ivanov23@gamil.com", "756784911", "25.01.2022",
                 "29.01.2022", "Не платена");
+        makingApplication("Виктория", "ivan23@gamil.com", "755494911", "25.01.2022",
+                "29.01.2022", "Не платена");
+        makingApplication("Елена", "ivan23@gamil.com", "758894911", "25.01.2022",
+                "29.01.2022", "Не платена");
+    }
+
+    private static void printAllOptionsNames() {
+        System.out.println("Изберете опция:\n1.Заяви отпуска\n2.Виж всички отпуски \n3.Виж отпуска за служител" +
+                " \n4.Промени статус на отпуска\n5.Изход\nВъведете опция:");
+
+    }
+
+    private static int getUserInput() {
+        String optionInput = scanner.nextLine();
+        while (!isNumeric(optionInput)) {
+            System.out.println("Моля, въведете номера на желаната опция!");
+            optionInput = scanner.nextLine();
+        }
+        return Integer.parseInt(optionInput);
+    }
+
+    private static void searchForExactEmployeeByName() {
+        System.out.println("Въведи име:");
+        String employeeName = scanner.nextLine();
+        String[][] applicationsByEmployeeName = getApplicationsForEmployee(employeeName);
+        showApplications(applicationsByEmployeeName);
     }
 
     private static void startNewApplicationWriting() {
@@ -111,27 +96,12 @@ public class Main {
         makingApplication(name, email, ID, fromDate, toDate, type);
     }
 
-    private static void printAllOptionsNames() {
-        System.out.println("Изберете опция:\n1.Заяви отпуска\n2.Виж всички отпуски \n3.Виж отпуска за служител" +
-                " \n4.Промени статус на отпуска\n5.Изход\nВъведете опция:");
 
-    }
-
-    private static int getUserInput() {
-        String optionInput = scanner.nextLine();
-        while (!isNumeric(optionInput)) {
-            System.out.println("Моля, въведете номера на желаната опция!");
-            optionInput = scanner.nextLine();
-        }
-        return Integer.parseInt(optionInput);
-    }
-
-
-    private static void showAllVacations() {
+    private static void showAllApplications(String[][] applications, int lastApplicationIndex) {
         String pattern = "%s \t| %s \t |%s \t\t\t| %s \t\t\t| %s \t\t\t| %s \t\t ";
         System.out.println(String.format(pattern, "Име", "Имейл           ", "ЕГН        ",
                 "Начална дата", "Крайна дата", "Вид"));
-        for (int rowIndex = 0; rowIndex <= lastApplicationIndex; rowIndex++) {
+        for (int rowIndex = 0; rowIndex <= Main.lastApplicationIndex; rowIndex++) {
             System.out.println(String.format(pattern,
                     getApplicationName(rowIndex),
                     getApplicationEmail(rowIndex),
@@ -161,6 +131,43 @@ public class Main {
 
         return lastApplicationIndex;
     }
+
+    private static void showApplications(String[][] applications) {
+        showAllApplications(applications, lastApplicationIndex);
+    }
+
+    private static String[][] getApplicationsForEmployee(String employeeName) {
+        return getApplicationsByApplicationColumn(INDEX_NAME, employeeName);
+    }
+
+
+    private static String[][] getApplicationsByApplicationColumn(int columnIndex, String searchCondition) {
+        int resultCount = getApplicationCount(columnIndex, searchCondition);
+        return getApplicationsByColumn(columnIndex, searchCondition, resultCount);
+    }
+
+    private static String[][] getApplicationsByColumn(int columnIndex, String searchCondition, int expectedResultCount) {
+        String[][] sortedApplications = new String[expectedResultCount][5];
+        int resultIndex = 0;
+        for (int i = 0; i <= lastApplicationIndex; i++) {
+            if (applications[i][columnIndex].equals(searchCondition)) {
+                sortedApplications[resultIndex] = applications[i];
+                resultIndex++;
+            }
+        }
+        return sortedApplications;
+    }
+
+    private static int getApplicationCount(int columnIndex, String searchCondition) {
+        int resultCount = 0;
+        for (int i = 0; i <= lastApplicationIndex; i++) {
+            if (applications[i][columnIndex].equals(searchCondition)) {
+                resultCount++;
+            }
+        }
+        return resultCount;
+    }
+
 
     public static boolean isNumeric(String string) {
         // Checks if the provided string
